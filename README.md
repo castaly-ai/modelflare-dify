@@ -26,6 +26,6 @@ With a Smart API Key, add as many models as you like with the same key; new mode
 
 Image and video generation is in the companion plugin **Modelflare Image & Video**.
 
-Source: https://github.com/castaly-ai/modelflare-dify · Docs: https://docs.modelflare.dev/ · Privacy: [PRIVACY.md](PRIVACY.md)
+Source: https://github.com/castaly-ai/modelflare-dify · Docs: https://docs.modelflare.dev/ · Privacy: [PRIVACY.md](PRIVACY.md) · Contact: support@modelflare.dev
 
 License: MIT © Havenbyte LLC
