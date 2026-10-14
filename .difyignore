@@ -1,0 +1,10 @@
+.git/
+.gitignore
+.difyignore
+shared/
+build.py
+__pycache__/
+*.pyc
+.venv/
+*.difypkg
+.env*
