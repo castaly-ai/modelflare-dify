@@ -1,0 +1,97 @@
+provider: modelflare
+label:
+  en_US: Modelflare
+description:
+  en_US: One Smart API Key for every model available to your Modelflare account.
+  zh_Hans: 一个 Smart API Key，调用你的 Modelflare 账号可用的全部模型。
+icon_small:
+  en_US: icon.svg
+icon_large:
+  en_US: icon.svg
+background: "#F5F3FF"
+help:
+  title:
+    en_US: Get a Modelflare Smart API Key
+    zh_Hans: 获取 Modelflare Smart API Key
+  url:
+    en_US: https://modelflare.dev/sign-up?utm_source=dify&utm_medium=plugin&utm_campaign=integrations
+supported_model_types:
+  - llm
+configurate_methods:
+  - customizable-model
+model_credential_schema:
+  model:
+    label:
+      en_US: Model ID
+      zh_Hans: 模型 ID
+    placeholder:
+      en_US: A model ID from your key's model list, e.g. one shown at https://modelflare.dev/pricing
+      zh_Hans: 你这把 Key 可用的模型 ID，可在 https://modelflare.dev/pricing 查看
+  credential_form_schemas:
+    - variable: api_key
+      label:
+        en_US: Modelflare Smart API Key
+      type: secret-input
+      required: true
+      placeholder:
+        en_US: "Recommended: one Smart API Key calls every model available to your account. Create one under API Keys → Create Smart API Key."
+        zh_Hans: 推荐使用 Smart API Key：一个 Key 调用你账号可用的全部模型。在控制台 API Keys →“Create Smart API Key”创建。
+    - variable: region
+      label:
+        en_US: Base URL
+      type: select
+      required: true
+      default: global
+      options:
+        - value: global
+          label:
+            en_US: Global (https://modelflare.dev/v1)
+            zh_Hans: 全球（https://modelflare.dev/v1）
+        - value: china
+          label:
+            en_US: China (https://origin.modelflare.dev/v1)
+            zh_Hans: 国内（https://origin.modelflare.dev/v1）
+    - variable: custom_base_url
+      label:
+        en_US: Custom base URL (optional)
+        zh_Hans: 自定义 Base URL（可选）
+      type: text-input
+      required: false
+      placeholder:
+        en_US: Overrides the Base URL above
+        zh_Hans: 填写后覆盖上面的 Base URL
+    - variable: context_size
+      label:
+        en_US: Context size
+        zh_Hans: 上下文长度
+      type: text-input
+      required: true
+      default: "128000"
+    - variable: max_tokens_to_sample
+      label:
+        en_US: Max output tokens
+        zh_Hans: 最大输出 token
+      type: text-input
+      required: true
+      default: "16384"
+    - variable: vision_support
+      label:
+        en_US: Vision
+        zh_Hans: 图片输入
+      type: select
+      required: false
+      default: not_support
+      options:
+        - value: support
+          label:
+            en_US: Supported
+            zh_Hans: 支持
+        - value: not_support
+          label:
+            en_US: Not supported
+            zh_Hans: 不支持
+extra:
+  python:
+    provider_source: provider/modelflare.py
+    model_sources:
+      - models/llm/llm.py

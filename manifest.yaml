@@ -1,0 +1,32 @@
+version: 0.1.0
+type: plugin
+author: modelflare
+name: modelflare
+label:
+  en_US: Modelflare
+  zh_Hans: Modelflare
+description:
+  en_US: One Modelflare Smart API Key for every model available to your account, including GPT, Claude and Gemini.
+  zh_Hans: 一个 Modelflare Smart API Key，调用你账号可用的全部模型，包括 GPT、Claude 和 Gemini。
+icon: icon.svg
+created_at: "2026-10-13T00:00:00Z"
+resource:
+  memory: 268435456
+  permission:
+    model:
+      enabled: true
+      llm: true
+plugins:
+  models:
+    - provider/modelflare.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+privacy: PRIVACY.md
+repo: https://github.com/castaly-ai/modelflare-dify
