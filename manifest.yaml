@@ -30,3 +30,4 @@ meta:
     entrypoint: main
 privacy: PRIVACY.md
 repo: https://github.com/castaly-ai/modelflare-dify
+contact: magnus@modelflare.dev

@@ -1,2 +1,3 @@
-modelflare_core/
-_assets/
+/modelflare_core/
+/_assets/
+__pycache__/
