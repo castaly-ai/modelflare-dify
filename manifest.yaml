@@ -21,6 +21,7 @@ plugins:
     - provider/modelflare.yaml
 meta:
   version: 0.0.1
+  minimum_dify_version: 1.5.1
   arch:
     - amd64
     - arm64
@@ -30,3 +31,4 @@ meta:
     entrypoint: main
 privacy: PRIVACY.md
 repo: https://github.com/castaly-ai/modelflare-dify
+contact: magnus@modelflare.dev
