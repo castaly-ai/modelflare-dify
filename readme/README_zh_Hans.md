@@ -14,7 +14,9 @@
    - 全球：`https://modelflare.dev/v1`（默认）
    - 国内：`https://origin.modelflare.dev/v1`
    - 或自定义地址
-3. 保存时只会用 Key 的模型列表（`GET /v1/models`）校验，不消耗额度。
+3. 保存时只会用 Key 的授权模型列表（`GET /v1/models?scope=authorized`）校验，不消耗额度。
+
+插件会自动识别所选模型的上下文长度、输出上限、视觉、工具调用和推理能力，只接受提供 OpenAI 兼容 Chat 接口的文本模型。图像、视频、向量、重排以及仅支持其他协议的模型不能误添加为 LLM。
 
 使用 Smart API Key 时，同一个 Key 可以添加任意多个模型，新模型上线无需改 Key。
 

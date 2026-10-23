@@ -2,13 +2,14 @@ from collections.abc import Generator
 from pathlib import Path
 
 import yaml
-from dify_plugin.entities.model import AIModelEntity
+from dify_plugin.entities.model import AIModelEntity, DefaultParameterName, ModelFeature
 from dify_plugin.entities.model.llm import LLMResult
 from dify_plugin.entities.model.message import PromptMessage, PromptMessageTool
 from dify_plugin.errors.model import CredentialsValidateFailedError, InvokeBadRequestError
 from dify_plugin.interfaces.model.openai_compatible.llm import OAICompatLargeLanguageModel
 
-from modelflare_core import ModelflareClient, ModelflareError, describe_error
+from modelflare_core import ModelflareClient, ModelflareError, classify_models, describe_error, needs_catalog, resolve_model_profile
+from modelflare_core.client import fetch_catalog
 
 ATTRIBUTION_PLUGIN = "modelflare-dify"
 UTM_SOURCE = "dify"
@@ -20,8 +21,10 @@ def _client(credentials: dict) -> ModelflareClient:
     return ModelflareClient(credentials.get("api_key", ""), ATTRIBUTION_PLUGIN, VERSION, base_url)
 
 
-def _listed_ids(credentials: dict) -> set[str]:
-    return {model.get("id") for model in _client(credentials).list_models()}
+def _text_model_ids(credentials: dict) -> set[str]:
+    listed = _client(credentials).list_models()
+    catalog = fetch_catalog() if needs_catalog(listed) else None
+    return {model.id for model in classify_models(listed, catalog) if model.kind == "text" and "openai" in model.endpoints}
 
 
 class ModelflareLargeLanguageModel(OAICompatLargeLanguageModel):
@@ -70,7 +73,7 @@ class ModelflareLargeLanguageModel(OAICompatLargeLanguageModel):
         if "model_not_found" not in str(error):
             return error
         try:
-            listed = model in _listed_ids(credentials)
+            listed = model in _text_model_ids(credentials)
         except Exception:
             listed = None
         return InvokeBadRequestError(
@@ -78,10 +81,10 @@ class ModelflareLargeLanguageModel(OAICompatLargeLanguageModel):
         )
 
     def validate_credentials(self, model: str, credentials: dict) -> None:
-        # Validates against the key's model list only, so saving a model never
-        # spends quota on a test completion.
+        # Validates against the key's classified text-model list only, so
+        # saving never spends quota and media models cannot be registered as LLMs.
         try:
-            listed = model in _listed_ids(credentials)
+            listed = model in _text_model_ids(credentials)
         except ModelflareError as ex:
             raise CredentialsValidateFailedError(describe_error(ex, "en", UTM_SOURCE)) from ex
         except ValueError as ex:
@@ -92,4 +95,34 @@ class ModelflareLargeLanguageModel(OAICompatLargeLanguageModel):
             )
 
     def get_customizable_model_schema(self, model: str, credentials: dict) -> AIModelEntity:
-        return super().get_customizable_model_schema(model, self._compat_credentials(credentials))
+        try:
+            profiles = _client(credentials).model_profiles()
+        except ModelflareError:
+            profiles = {}
+        profile = resolve_model_profile(model, profiles)
+        resolved_credentials = {
+            **self._compat_credentials(credentials),
+            "context_size": str(profile.context_window),
+            "max_tokens_to_sample": str(profile.max_output_tokens),
+            "vision_support": "support" if "image" in profile.input_modalities else "not_support",
+            "function_calling_type": "tool_call" if profile.tool_calling else "no_call",
+            "stream_function_calling": "supported" if profile.tool_calling else "not_supported",
+        }
+        entity = super().get_customizable_model_schema(model, resolved_credentials)
+        features = list(entity.features or [])
+        if profile.reasoning and ModelFeature.AGENT_THOUGHT not in features:
+            features.append(ModelFeature.AGENT_THOUGHT)
+        entity.features = features
+        if not profile.temperature_supported:
+            unsupported_sampling = {
+                DefaultParameterName.TEMPERATURE.value,
+                DefaultParameterName.TOP_P.value,
+                DefaultParameterName.FREQUENCY_PENALTY.value,
+                DefaultParameterName.PRESENCE_PENALTY.value,
+            }
+            entity.parameter_rules = [rule for rule in entity.parameter_rules if rule.name not in unsupported_sampling]
+        for rule in entity.parameter_rules:
+            if rule.name == DefaultParameterName.MAX_TOKENS.value:
+                rule.max = profile.max_output_tokens
+                rule.default = min(rule.default or 512, profile.max_output_tokens)
+        return entity

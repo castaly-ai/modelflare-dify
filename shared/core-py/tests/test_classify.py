@@ -13,6 +13,12 @@ MODELS = [
     {"id": "seedance-2.5", "supported_endpoint_types": ["openai-video"]},
     {"id": "jev-decisions", "supported_endpoint_types": ["decisions"]},
     {"id": "gemini-4-flash-image", "supported_endpoint_types": ["gemini"]},
+    {
+        "id": "server-classified-gemini-image",
+        "supported_endpoint_types": ["gemini"],
+        "kind": "image",
+        "image_route": "gemini-generate-content",
+    },
 ]
 CATALOG = [
     {"model_name": "gemini-3-pro-image", "supported_endpoint_types": ["gemini"], "media_options": {"image": {}}},
@@ -32,10 +38,12 @@ class ClassifyTest(unittest.TestCase):
         self.assertEqual(result["gpt-image-2"], "image:images")
         self.assertEqual(result["seedance-2.5"], "video")
         self.assertNotIn("jev-decisions", result)
+        self.assertEqual(result["server-classified-gemini-image"], "image:gemini-generate-content")
 
     def test_unknown_gemini_only_model_is_hidden_not_chat(self):
         self.assertNotIn("gemini-4-flash-image", kinds(CATALOG))
         self.assertNotIn("gemini-3-pro-image", kinds(None))
+        self.assertEqual(kinds(None)["server-classified-gemini-image"], "image:gemini-generate-content")
 
 
 if __name__ == "__main__":

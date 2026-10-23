@@ -1,4 +1,4 @@
-version: 0.1.0
+version: 0.1.1
 type: plugin
 author: modelflare
 name: modelflare
@@ -30,4 +30,3 @@ meta:
     entrypoint: main
 privacy: PRIVACY.md
 repo: https://github.com/castaly-ai/modelflare-dify
-contact: magnus@modelflare.dev

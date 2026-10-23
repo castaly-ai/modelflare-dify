@@ -14,7 +14,9 @@ One Modelflare **Smart API Key** for every model available to your account — G
    - Global: `https://modelflare.dev/v1` (default)
    - China: `https://origin.modelflare.dev/v1`
    - Or a custom base URL
-3. Saving checks the model against your key's model list (`GET /v1/models`); it does not spend quota.
+3. Saving checks the model against your key's authorized model list (`GET /v1/models?scope=authorized`); it does not spend quota.
+
+The plugin resolves the selected model's context window, output limit, vision, tool-calling and reasoning capabilities automatically. It accepts text models that publish the OpenAI-compatible chat endpoint; image, video, embedding, rerank and other-protocol-only models are rejected when added as an LLM.
 
 With a Smart API Key, add as many models as you like with the same key; new models work without editing the key.
 
